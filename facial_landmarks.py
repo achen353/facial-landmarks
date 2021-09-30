@@ -18,9 +18,9 @@ import numpy as np
 import dlib
 import cv2
 import argparse
-import os
 from image_utility import save_image, generate_random_color, draw_border
 from imutils import face_utils
+import json
 
 
 def hog_landmarks(image, gray):
@@ -90,6 +90,11 @@ def dl_landmarks(image, gray, h, w):
         # Make the prediction and transfom it to numpy array
         shape = predictor(gray, dlib.rectangle(left=x1, top=y1, right=x2, bottom=y2))
         shape = face_utils.shape_to_np(shape)
+        shape = shape.tolist()
+
+        with open("output.json", "w") as f:
+            json.dump(shape, f)
+        
         cv2.rectangle(image, (x1, y1), (x2, y2), generate_random_color(), 2)
         # Draw on our image, all the finded cordinate points (x,y)
         for (x, y) in shape:
@@ -125,8 +130,6 @@ def face_detection(image):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-
-    HOME = "/home/keyur-r/image_data"
 
     # handle command line arguments
     ap = argparse.ArgumentParser()
@@ -169,7 +172,7 @@ if __name__ == "__main__":
     image = None
     if args.image:
         # load input image
-        img = os.path.join(HOME, args.image)
+        img = args.image
         image = cv2.imread(img)
 
     if image is None:
